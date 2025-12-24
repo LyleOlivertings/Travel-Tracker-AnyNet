@@ -1,80 +1,78 @@
 import { getTrips, getActiveTrip } from './actions';
 import { StartTripForm, StopTripForm } from './components/TripForms';
+import TripList from './components/TripList';
+import { Car } from 'lucide-react';
 
 export default async function Home() {
   const activeTrip = await getActiveTrip();
   const trips = await getTrips();
 
-  // Find the last completed trip to get its End Odo for auto-fill
   const lastTrip = trips.length > 0 ? trips[0] : null;
   const lastEndOdo = lastTrip?.endOdo;
-
   const totalClaim = trips.reduce((sum: number, trip: any) => sum + (trip.claimAmount || 0), 0);
 
   return (
-    <main className="max-w-md mx-auto p-4 bg-gray-50 min-h-screen">
-      <header className="mb-6 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">AnyNet Travel Log</h1>
-        <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-          R {totalClaim.toFixed(2)}
-        </div>
-      </header>
-
-      {/* --- ACTIVE TRIP SECTION --- */}
-      <section className="bg-white p-6 rounded-xl shadow-sm mb-6 border border-gray-100">
-        {activeTrip ? (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-              <h2 className="font-semibold text-gray-700">Trip in Progress</h2>
-            </div>
-            
-            <div className="text-sm text-gray-500 mb-4">
-              Started at: <span className="font-mono text-gray-800">{activeTrip.startOdo} km</span><br/>
-              From: {activeTrip.from}
-            </div>
-
-            {/* Render Client Component for Stopping */}
-            <StopTripForm trip={activeTrip} />
-          </div>
-        ) : (
-          <div>
-            <h2 className="font-semibold text-gray-700 mb-4">Start New Trip</h2>
-            {/* Render Client Component for Starting */}
-            <StartTripForm lastEndOdo={lastEndOdo} />
-          </div>
-        )}
-      </section>
-
-      {/* --- HISTORY SECTION --- */}
-      <section>
-        <h3 className="text-gray-500 font-medium text-sm mb-3">Recent History</h3>
-        <div className="space-y-3">
-          {trips.map((trip: any) => (
-            <div key={trip._id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center">
-              <div>
-                <div className="font-semibold text-gray-800">{trip.reason}</div>
-                <div className="text-xs text-gray-500">
-                  {new Date(trip.date).toLocaleDateString()} • {trip.distance || 0} km
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {trip.from} ➝ {trip.to || '...'}
-                </div>
+    <main className="min-h-screen bg-[#F8FAFC]">
+      <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl shadow-gray-200/50 overflow-hidden flex flex-col">
+        
+        {/* Header Section */}
+        <header className="bg-white p-6 pb-4 z-10 sticky top-0 border-b border-gray-50/50 backdrop-blur-md bg-white/80">
+          <div className="flex justify-between items-center mb-1">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              <div className="bg-blue-600 p-1.5 rounded-lg">
+                <Car className="w-5 h-5 text-white" />
               </div>
-              <div className="text-right">
-                {trip.status === 'COMPLETED' ? (
-                  <span className="text-green-600 font-bold block">R {trip.claimAmount?.toFixed(2)}</span>
-                ) : (
-                  <span className="text-amber-500 text-xs font-bold px-2 py-1 bg-amber-50 rounded">ACTIVE</span>
-                )}
-              </div>
+              AnyNet<span className="text-gray-400 font-normal">Log</span>
+            </h1>
+            <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-2xl text-sm font-bold shadow-sm border border-emerald-100">
+              R {totalClaim.toFixed(2)}
             </div>
-          ))}
+          </div>
+          <p className="text-gray-400 text-xs ml-10">SARS Tax Year 2025/2026</p>
+        </header>
+
+        {/* Action Section */}
+        <div className="p-6 pb-2">
+          {activeTrip ? (
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 text-white shadow-xl shadow-gray-900/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+              
+              <div className="flex items-center gap-3 mb-6">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="font-medium text-green-400 text-sm tracking-wide uppercase">Trip in Progress</span>
+              </div>
+
+              <div className="mb-6 space-y-1">
+                <p className="text-gray-400 text-xs uppercase tracking-wider">Started From</p>
+                <p className="text-lg font-medium">{activeTrip.from}</p>
+                <p className="text-3xl font-bold font-mono mt-2">{activeTrip.startOdo} <span className="text-sm text-gray-500">km</span></p>
+              </div>
+
+              <StopTripForm trip={activeTrip} />
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl p-1">
+              <h2 className="text-gray-900 font-bold mb-4 ml-1">New Trip</h2>
+              <StartTripForm lastEndOdo={lastEndOdo} />
+            </div>
+          )}
         </div>
-      </section>
+
+        {/* List Section */}
+        <div className="flex-1 bg-gray-50/50 p-6 rounded-t-[40px] mt-4 border-t border-gray-100">
+          <div className="flex justify-between items-center mb-6 px-2">
+            <h3 className="text-gray-400 font-medium text-sm uppercase tracking-wider">Recent History</h3>
+            <span className="text-xs text-gray-400 bg-white px-2 py-1 rounded-md border border-gray-100">
+              {trips.length} Trips
+            </span>
+          </div>
+          <TripList trips={trips} />
+        </div>
+
+      </div>
     </main>
   );
 }

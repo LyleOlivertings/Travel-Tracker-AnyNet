@@ -22,7 +22,7 @@ export async function startTrip(prevState: FormState, formData: FormData): Promi
     return { error: "Missing required fields" };
   }
 
-  try {
+try {
     await Trip.create({
       startOdo: Number(startOdo),
       from: from as string,
@@ -32,8 +32,12 @@ export async function startTrip(prevState: FormState, formData: FormData): Promi
 
     revalidatePath('/');
     return { message: "Trip started!" };
+
   } catch (e) {
-    return { error: "Database error: Failed to start trip" };
+    // ADD THIS LINE TO SEE THE REAL ERROR:
+    console.error("❌ DATABASE ERROR:", e); 
+    
+    return { error: "Database error: Check VS Code terminal for details" };
   }
 }
 

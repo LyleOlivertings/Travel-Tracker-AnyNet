@@ -26,7 +26,7 @@ const TripSchema: Schema = new Schema({
 });
 
 // Helper to calculate claim before saving
-TripSchema.pre('save', function(next: any) {
+TripSchema.pre('save', function() {
   const trip = this as unknown as ITrip;
 
   if (trip.endOdo && trip.startOdo) {
@@ -36,8 +36,6 @@ TripSchema.pre('save', function(next: any) {
     trip.claimAmount = parseFloat((trip.distance * 4.76).toFixed(2));
     trip.status = 'COMPLETED';
   }
-  
-  next(); // TypeScript will now allow this because 'any' can be called
 });
 
 const Trip: Model<ITrip> = mongoose.models.Trip || mongoose.model<ITrip>('Trip', TripSchema);
